@@ -1445,15 +1445,6 @@
     drawCardFooter(ctx);
   }
 
-  var cardBlob = null;
-
-  function prepareCardBlob() {
-    if (!el.cardCanvas) return;
-    el.cardCanvas.toBlob(function (blob) {
-      if (blob) cardBlob = blob;
-    }, "image/png");
-  }
-
   function downloadCard(blob, name) {
     var url = URL.createObjectURL(blob);
     var link = document.createElement("a");
@@ -1473,65 +1464,88 @@
     return !!(window.matchMedia && window.matchMedia("(pointer: coarse)").matches);
   }
 
-  function shareLink(blob, name) {
-    if (navigator.share && isCoarsePointer()) {
-      navigator.share({
-        title: "Подарок с подвохом",
-        text: "Мой новогодний вечер: " + state.mood + " из " + MAX_MOOD,
-        url: location.href
-      }).catch(function (err) {
-        if (err && err.name === "AbortError") return;
-        downloadCard(blob, name);
-      });
+  function buildCardData() {
+    if (!el.cardCanvas) return null;
+
+    try {
+      drawCard();
+      var dataUrl = el.cardCanvas.toDataURL("image/png");
+      var binary = atob(dataUrl.slice(dataUrl.indexOf(",") + 1));
+      var bytes = new Uint8Array(binary.length);
+      for (var i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+
+      var blob = new Blob([bytes], { type: "image/png" });
+      var file = null;
+      try {
+        file = new File([blob], cardFileName(), { type: "image/png" });
+      } catch (err) {
+        file = null;
+      }
+
+      return { blob: blob, file: file };
+    } catch (err) {
+      return null;
+    }
+  }
+
+  function openCardImage(blob) {
+    var url = URL.createObjectURL(blob);
+    var opened = window.open(url, "_blank");
+    if (!opened) downloadCard(blob, cardFileName());
+    setTimeout(function () { URL.revokeObjectURL(url); }, 60000);
+  }
+
+  function fallbackCard(blob, name) {
+    if (!blob) return;
+    if (isCoarsePointer()) {
+      openCardImage(blob);
       return;
     }
-
     downloadCard(blob, name);
   }
 
-  function tryShare(blob, name) {
-    var file = null;
-    try {
-      file = new File([blob], name, { type: "image/png" });
-    } catch (err) {
-      file = null;
+  function shareOnlyLink(blob, name) {
+    navigator.share({
+      text: "Мой новогодний вечер: " + state.mood + " из " + MAX_MOOD,
+      url: location.href
+    }).catch(function (err) {
+      if (err && err.name === "AbortError") return;
+      fallbackCard(blob, name);
+    });
+  }
+
+  function shareWith(data) {
+    var name = cardFileName();
+
+    if (typeof navigator.share !== "function") {
+      fallbackCard(data.blob, name);
+      return;
     }
 
     var canFiles = false;
-    if (file && navigator.share && navigator.canShare) {
+    if (data.file && typeof navigator.canShare === "function") {
       try {
-        canFiles = navigator.canShare({ files: [file] });
+        canFiles = navigator.canShare({ files: [data.file] });
       } catch (err) {
         canFiles = false;
       }
     }
 
     if (canFiles) {
-      navigator.share({ files: [file], title: "Подарок с подвохом" }).catch(function (err) {
+      navigator.share({ files: [data.file] }).catch(function (err) {
         if (err && err.name === "AbortError") return;
-        shareLink(blob, name);
+        fallbackCard(data.blob, name);
       });
       return;
     }
 
-    shareLink(blob, name);
+    shareOnlyLink(data.blob, name);
   }
 
   function shareCard() {
-    if (!el.cardCanvas) return;
-    var name = cardFileName();
-
-    if (cardBlob) {
-      tryShare(cardBlob, name);
-      return;
-    }
-
-    drawCard();
-    el.cardCanvas.toBlob(function (blob) {
-      if (!blob) return;
-      cardBlob = blob;
-      tryShare(blob, name);
-    }, "image/png");
+    var data = buildCardData();
+    if (!data) return;
+    shareWith(data);
   }
 
   function showFinal() {
@@ -1558,7 +1572,6 @@
     el.finalText.textContent = line;
     el.finalMood.textContent = state.mood;
     drawCard();
-    prepareCardBlob();
 
     el.yuliaOverlay.classList.remove("is-open");
     setTimeout(function () {
@@ -1582,7 +1595,6 @@
     state.solved = false;
     state.choice = null;
     state.advancing = false;
-    cardBlob = null;
     clearTimeout(watchdog);
 
     stopRing();
