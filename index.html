@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Новогодняя игра на наблюдательность: угадай, что подарить семи гостям, и решай судьбу восьмого подарка.">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="ru_RU">
+<meta property="og:site_name" content="Подарок с подвохом">
+<meta property="og:title" content="Подарок с подвохом">
+<meta property="og:description" content="Семь гостей. Три подарка на каждого. Один шанс угадать.">
+<meta property="og:url" content="https://podarok.example/">
+<meta property="og:image" content="https://podarok.example/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Подарок с подвохом">
+<meta name="twitter:description" content="Семь гостей. Три подарка на каждого. Один шанс угадать.">
+<meta name="twitter:image" content="https://podarok.example/og.jpg">
+<title>Подарок с подвохом — прототип</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%237d2338' d='M12 1.5 14.6 9l7.9.2-6.3 4.8 2.2 7.6L12 16.9 5.6 21.6l2.2-7.6L1.5 9.2 9.4 9z'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="style.css?v=3">
+</head>
+<body>
+<div class="snow" id="snow" aria-hidden="true"></div>
+
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <svg class="brand-star" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 1.5 14.6 9l7.9.2-6.3 4.8 2.2 7.6L12 16.9 5.6 21.6l2.2-7.6L1.5 9.2 9.4 9z"/>
+      </svg>
+      <div class="brand-text">
+        <span class="brand-title">Подарок с подвохом</span>
+        <span class="brand-sub">новогодняя история на наблюдательность</span>
+      </div>
+    </div>
+
+    <div class="mood" aria-label="Душевность вечера">
+      <span class="mood-label">Душевность вечера</span>
+      <div class="mood-bar" role="progressbar" aria-valuemin="0" aria-valuemax="155" aria-valuenow="30" id="moodBar">
+        <div class="mood-fill" id="moodFill"></div>
+      </div>
+      <span class="mood-value" id="moodValue">30</span>
+    </div>
+  </header>
+
+  <main class="board">
+    <section class="scene">
+      <div class="garland" id="garland" aria-hidden="true"></div>
+
+      <div class="frame" id="stage" tabindex="0" role="button"
+           aria-label="Вручить выбранный подарок">
+        <div class="frame-inner">
+          <video class="char-video is-active" id="vidA" playsinline muted preload="auto">
+          </video>
+          <video class="char-video" id="vidB" playsinline muted preload="auto"></video>
+          <div class="frame-veil" id="frameVeil" aria-hidden="true"></div>
+          <div class="frame-glow" aria-hidden="true"></div>
+        </div>
+        <div class="frame-ring" aria-hidden="true"></div>
+      </div>
+
+      <div class="nameplate">
+        <span class="name" id="guestName">Дима</span>
+        <span class="role" id="guestRole">душа компании</span>
+      </div>
+
+      <svg class="branch branch-left" viewBox="0 0 120 160" aria-hidden="true">
+        <path d="M8 158C26 120 40 84 46 34M34 104c-14-2-24-8-28-18M40 84c14-4 22-12 26-24M44 62c-12-4-18-12-20-24M47 44c10-4 16-10 20-20"/>
+      </svg>
+      <svg class="branch branch-right" viewBox="0 0 120 160" aria-hidden="true">
+        <path d="M112 158C94 120 80 84 74 34M86 104c14-2 24-8 28-18M80 84c-14-4-22-12-26-24M76 62c12-4 18-12 20-24M73 44c-10-4-16-10-20-20"/>
+      </svg>
+    </section>
+
+    <aside class="panel">
+      <div class="bubble" id="bubble">
+        <p id="bubbleText">Да мне вообще ничего не надо, главное — компания.</p>
+      </div>
+
+      <div class="bag">
+        <div class="bag-head">
+          <h2>Мешок Деда Мороза</h2>
+          <span class="bag-count" id="bagCount">3 подарка</span>
+        </div>
+        <p class="bag-hint" id="bagHint">Перетащи подарок на гостя — или выбери карточку и нажми на неё.</p>
+        <div class="gifts" id="gifts"></div>
+        <p class="hint" id="hint" aria-live="polite"></p>
+      </div>
+
+      <div class="guestline" aria-label="Гость 1 из 7">
+        <span class="guestline-label" id="guestLabel">Гость 1 из 7</span>
+        <div class="guest-dots" id="guestDots" aria-hidden="true"></div>
+        <span class="guestline-note" id="guestNote">Дима · Костя · Варвара · Лена · Сергей · Таня · Татьяна</span>
+      </div>
+    </aside>
+  </main>
+</div>
+
+<div class="overlay is-open" id="startOverlay">
+  <div class="overlay-card">
+    <p class="kicker">31 декабря · 23:12</p>
+    <h1>Подарок<br>с подвохом</h1>
+    <p class="lead">Дед Мороз потерял список. Бирки отклеились. Семь друзей уже за столом, и один мешок на всех.</p>
+    <ul class="rules">
+      <li>Слушай, что говорят, — и смотри, что у кого в руках.</li>
+      <li>Вручай подарки. Ошибка — не конец, а неловкая пауза.</li>
+      <li>Семь гостей, по три подарка на каждого. Одному подарок не достанется вовсе.</li>
+    </ul>
+    <button class="btn btn-primary" id="startBtn" type="button">Начать вечер</button>
+    <p class="fine">18+ · взрослый юмор, алкоголь и разговоры про ипотеку</p>
+  </div>
+</div>
+
+<div class="overlay" id="yuliaOverlay" hidden>
+  <div class="overlay-card yulia-card">
+    <p class="kicker" id="yuliaKicker">00:12 · все подарки разобраны</p>
+    <h1 id="yuliaTitle">Восьмой подарок</h1>
+    <p class="lead" id="yuliaLead">На столе осталась коробка со шнурком и биркой «Юле». Никто не признаётся, что подписал.</p>
+
+    <div class="yulia-choice" id="yuliaChoice">
+      <div class="props">
+        <svg class="prop" viewBox="0 0 120 120" aria-hidden="true">
+          <rect x="30" y="48" width="60" height="44" rx="4" fill="#efe1c6" stroke="#b9863c" stroke-width="2"/>
+          <rect x="25" y="38" width="70" height="14" rx="3" fill="#e6d3ae" stroke="#b9863c" stroke-width="2"/>
+          <path d="M60 38v54" stroke="#7d2338" stroke-width="3"/>
+          <path d="M60 38c-8 0-14-4-14-9s6-7 10-4 4 9 4 13zm0 0c8 0 14-4 14-9s-6-7-10-4-4 9-4 13z" fill="none" stroke="#7d2338" stroke-width="3"/>
+          <g transform="rotate(-7 100 44)">
+            <rect x="88" y="34" width="26" height="18" rx="2" fill="#fffdf6" stroke="#b9863c" stroke-width="1.4"/>
+            <circle cx="91" cy="43" r="1.4" fill="#b9863c"/>
+            <text x="103" y="47" font-size="7.5" text-anchor="middle" fill="#7d2338" font-family="Georgia, serif">Юле</text>
+          </g>
+        </svg>
+        <svg class="prop" viewBox="0 0 120 120" aria-hidden="true">
+          <path d="M38 20v44M82 20v44M38 22h44" fill="none" stroke="#8a6a44" stroke-width="3" stroke-linecap="round"/>
+          <path d="M46 22v40M54 22v40M62 22v40M70 22v40" fill="none" stroke="#b9863c" stroke-width="2" stroke-linecap="round"/>
+          <rect x="30" y="62" width="60" height="10" rx="3" fill="#efe1c6" stroke="#8a6a44" stroke-width="2"/>
+          <path d="M38 72v36M82 72v36M38 90h44" fill="none" stroke="#8a6a44" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+      </div>
+
+      <div class="choices">
+        <button class="choice" type="button" data-choice="trip">Всей компанией с подарком поедем к Юле</button>
+        <button class="choice" type="button" data-choice="courier">Отправить через курьерскую службу</button>
+        <button class="choice" type="button" data-choice="cupboard">Убрать в шкаф до следующего года</button>
+      </div>
+      <p class="choice-note">Выбор изменит одну строчку в финале.</p>
+    </div>
+
+    <div class="yulia-call" id="yuliaCall" hidden>
+      <div class="phone">
+        <img src="assets/yulia-hello.jpg" alt="Юля на экране видеозвонка">
+        <div class="phone-top">видеозвонок</div>
+        <div class="phone-name">Юля</div>
+      </div>
+      <button class="btn btn-primary" id="answerBtn" type="button">Ответить</button>
+      <p class="ring-note">Телефон на столе звонит.</p>
+    </div>
+
+    <div class="yulia-video" id="yuliaVideo" hidden>
+      <div class="call-frame">
+        <video class="call-video" id="yuliaPlayer" playsinline preload="auto" poster="assets/yulia-hello.jpg?v=2"></video>
+        <div class="call-line" id="callLine" hidden aria-live="polite">
+          <img class="call-avatar" id="callAvatar" alt="">
+          <p class="call-line-text" id="callLineText"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="finalOverlay" hidden>
+  <div class="overlay-card">
+    <p class="kicker" id="finalKicker">00:07 · куранты отгремели</p>
+    <h1 id="finalTitle">Вечер спасён</h1>
+    <p class="lead" id="finalText"></p>
+    <div class="final-mood">
+      <span>Душевность вечера</span>
+      <strong id="finalMood">100</strong>
+    </div>
+    <div class="final-card">
+      <canvas class="final-card-shot" id="cardCanvas" width="1080" height="1080" role="img" aria-label="Карточка с итогом вечера"></canvas>
+      <button class="btn btn-card" id="shareBtn" type="button">Поделиться результатом</button>
+    </div>
+    <button class="btn btn-primary" id="restartBtn" type="button">Сыграть ещё раз</button>
+  </div>
+</div>
+
+<script src="app.js?v=7"></script>
+</body>
+</html>
