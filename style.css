@@ -813,7 +813,7 @@ body::after {
 
 .final-card-shot {
   display: block;
-  width: min(252px, 60vw);
+  width: min(460px, 92vw);
   height: auto;
   border-radius: 14px;
   box-shadow: 0 16px 32px rgba(89, 24, 42, .2);
