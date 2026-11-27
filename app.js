@@ -984,7 +984,8 @@
   /* ---------- share card ---------- */
 
   var CARD = {
-    size: 1080,
+    w: 1080,
+    h: 1350,
     cream: "#f9f2e5",
     panel: "#fffdf6",
     soft: "#7a6a58",
@@ -1097,171 +1098,101 @@
   }
 
   function drawCardStats(ctx) {
-    var x = 88;
-    var w = 904;
     var choice = choiceValue();
 
+    ctx.textAlign = "center";
+
     ctx.fillStyle = CARD.soft;
-    ctx.font = "500 28px 'Golos Text', system-ui, sans-serif";
+    ctx.font = "500 30px 'Golos Text', system-ui, sans-serif";
     letterSpace(ctx, 4);
-    ctx.textAlign = "left";
-    ctx.fillText("ДУШЕВНОСТЬ ВЕЧЕРА", x, 262);
+    ctx.fillText("ДУШЕВНОСТЬ ВЕЧЕРА", 540, 772);
     letterSpace(ctx, 0);
 
     ctx.fillStyle = CARD.wine;
-    ctx.font = "600 168px Georgia, 'Times New Roman', serif";
+    ctx.font = "600 190px Georgia, 'Times New Roman', serif";
     var score = String(state.mood);
-    ctx.fillText(score, x - 6, 400);
     var scoreW = ctx.measureText(score).width;
 
     ctx.fillStyle = CARD.soft;
-    ctx.font = "500 44px 'Golos Text', system-ui, sans-serif";
-    ctx.fillText("из " + MAX_MOOD, x + scoreW + 18, 396);
+    ctx.font = "500 42px 'Golos Text', system-ui, sans-serif";
+    var unitText = "из " + MAX_MOOD;
+    var unitW = ctx.measureText(unitText).width;
 
-    var rows = [
+    var blockX = 540 - (scoreW + 22 + unitW) / 2;
+
+    ctx.textAlign = "left";
+    ctx.fillStyle = CARD.wine;
+    ctx.font = "600 190px Georgia, 'Times New Roman', serif";
+    ctx.fillText(score, blockX, 940);
+
+    ctx.fillStyle = CARD.soft;
+    ctx.font = "500 42px 'Golos Text', system-ui, sans-serif";
+    ctx.fillText(unitText, blockX + scoreW + 22, 936);
+    ctx.textAlign = "center";
+
+    var chips = [
       {
-        label: "С ПЕРВОГО РАЗА",
-        max: "из " + GUESTS.length,
-        pct: state.firstTry / GUESTS.length,
-        text: String(state.firstTry),
+        value: state.firstTry + "/" + GUESTS.length,
+        caption: "с первого раза",
         color: CARD.green
       },
       {
-        label: "КОРОБКА ДЛЯ ЮЛИ",
-        max: "из 20",
-        pct: (choice + 10) / 30,
-        zero: 1 / 3,
-        text: (choice < 0 ? "−" : "+") + Math.abs(choice),
+        value: (choice < 0 ? "−" : "+") + Math.abs(choice),
+        caption: "коробка для Юли",
         color: choice < 0 ? CARD.red : CARD.green
       },
       {
-        label: "НЕЛОВКИЕ ПАУЗЫ",
-        max: "каждая ошибка",
-        pct: Math.min(1, state.mistakes / 14),
-        text: String(state.mistakes),
+        value: String(state.mistakes),
+        caption: "неловких пауз",
         color: CARD.red
       }
     ];
 
-    rows.forEach(function (row, i) {
-      var labelY = 520 + i * 116;
-      var barY = labelY + 22;
-      var barH = 28;
-      var barW = w - 170;
+    chips.forEach(function (chip, i) {
+      var cx = 240 + i * 300;
+
+      cardPath(ctx, cx - 150, 1040, 300, 130, 20);
+      ctx.fillStyle = CARD.panel;
+      ctx.fill();
+      ctx.strokeStyle = "rgba(185, 134, 60, .35)";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      ctx.fillStyle = chip.color;
+      ctx.font = "600 58px Georgia, 'Times New Roman', serif";
+      ctx.fillText(chip.value, cx, 1120);
 
       ctx.fillStyle = CARD.soft;
-      ctx.font = "500 26px 'Golos Text', system-ui, sans-serif";
-      letterSpace(ctx, 3);
-      ctx.textAlign = "left";
-      ctx.fillText(row.label, x, labelY);
-      letterSpace(ctx, 0);
-
-      ctx.font = "400 24px 'Golos Text', system-ui, sans-serif";
-      ctx.textAlign = "right";
-      ctx.fillText(row.max, x + barW, labelY);
-
-      cardPath(ctx, x, barY, barW, barH, barH / 2);
-      ctx.fillStyle = "rgba(43, 33, 25, .09)";
-      ctx.fill();
-
-      ctx.save();
-      cardPath(ctx, x, barY, barW, barH, barH / 2);
-      ctx.clip();
-
-      ctx.fillStyle = row.color;
-
-      var from = row.zero ? Math.min(row.pct, row.zero) : 0;
-      var to = row.zero ? Math.max(row.pct, row.zero) : row.pct;
-      ctx.fillRect(x + barW * from, barY, barW * (to - from), barH);
-      ctx.restore();
-
-      if (row.zero) {
-        ctx.fillStyle = "rgba(43, 33, 25, .26)";
-        ctx.fillRect(x + barW * row.zero - 1, barY - 6, 2, barH + 12);
-      }
-
-      cardBadge(ctx, x + barW + 84, barY + barH / 2, row.text, row.color, 38);
+      ctx.font = "500 22px 'Golos Text', system-ui, sans-serif";
+      ctx.fillText(chip.caption, cx, 1154);
     });
+
+    ctx.textAlign = "left";
   }
 
-  function drawCardScene(ctx, x, y, w, h) {
-    var r1 = 216;
-    var r2 = 44;
+  function drawCardTree(ctx, cx, base, s) {
+    var tier = state.mood >= 110 ? 3 : (state.mood >= 65 ? 2 : 1);
 
     ctx.save();
-    ctx.beginPath();
-    ctx.moveTo(x, y + h - r2);
-    ctx.lineTo(x, y + r1);
-    ctx.arcTo(x, y, x + r1, y, r1);
-    ctx.lineTo(x + w - r1, y);
-    ctx.arcTo(x + w, y, x + w, y + r1, r1);
-    ctx.lineTo(x + w, y + h - r2);
-    ctx.arcTo(x + w, y + h, x + w - r2, y + h, r2);
-    ctx.lineTo(x + r2, y + h);
-    ctx.arcTo(x, y + h, x, y + h - r2, r2);
-    ctx.closePath();
-    ctx.fillStyle = CARD.panel;
-    ctx.fill();
-    ctx.strokeStyle = "rgba(185, 134, 60, .35)";
-    ctx.lineWidth = 2;
-    ctx.stroke();
-
-    ctx.clip();
-
-    var base = y + h - 52;
-
-    ctx.beginPath();
-    ctx.ellipse(x + w * 0.52, base + 12, w * 0.4, 11, 0, 0, Math.PI * 2);
-    ctx.fillStyle = "rgba(43, 33, 25, .07)";
-    ctx.fill();
-
-    var gx0 = x + 46;
-    var gx1 = x + w - 46;
-    var gy = y + 64;
-    var ctrlX = (gx0 + gx1) / 2;
-    var ctrlY = gy + 78;
-
-    ctx.strokeStyle = "#ddcdae";
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(gx0, gy);
-    ctx.quadraticCurveTo(ctrlX, ctrlY, gx1, gy);
-    ctx.stroke();
-
-    for (var i = 0; i <= 12; i++) {
-      var t = i / 12;
-      var bx2 = quadCoord(gx0, ctrlX, gx1, t);
-      var by2 = quadCoord(gy, ctrlY, gy, t);
-      ctx.beginPath();
-      ctx.arc(bx2, by2 + 6, 5.5, 0, Math.PI * 2);
-      ctx.fillStyle = "#c9a86a";
-      ctx.fill();
-      ctx.beginPath();
-      ctx.arc(bx2, by2 + 6, 2, 0, Math.PI * 2);
-      ctx.fillStyle = "#a8834a";
-      ctx.fill();
-    }
-
-    var cx = x + w - 118;
+    ctx.translate(cx, base);
+    ctx.scale(s, s);
 
     ctx.fillStyle = "#7a5a34";
-    ctx.fillRect(cx - 17, base - 10, 34, 20);
+    ctx.fillRect(-17, -10, 34, 20);
 
     function treeLayer(apexY, half, height) {
       ctx.beginPath();
-      ctx.moveTo(cx, apexY);
-      ctx.lineTo(cx + half, apexY + height);
-      ctx.lineTo(cx - half, apexY + height);
+      ctx.moveTo(0, apexY);
+      ctx.lineTo(half, apexY + height);
+      ctx.lineTo(-half, apexY + height);
       ctx.closePath();
       ctx.fill();
     }
 
     ctx.fillStyle = CARD.tree;
-    treeLayer(base - 268, 148, 268);
-    treeLayer(base - 222, 118, 222);
-    treeLayer(base - 176, 88, 176);
-
-    var tier = state.mood >= 110 ? 3 : (state.mood >= 65 ? 2 : 1);
+    treeLayer(-268, 148, 268);
+    treeLayer(-222, 118, 222);
+    treeLayer(-176, 88, 176);
 
     var bulbs = [
       [-100, -30], [-52, -46], [-4, -34], [56, -48], [96, -30],
@@ -1284,7 +1215,7 @@
 
     picked.forEach(function (o, idx) {
       ctx.beginPath();
-      ctx.arc(cx + o[0], base + o[1], bulbSize, 0, Math.PI * 2);
+      ctx.arc(o[0], o[1], bulbSize, 0, Math.PI * 2);
       ctx.fillStyle = idx % 3 === 0 ? "#c9a25a" : (idx % 3 === 1 ? "#8d2a40" : "#e8d9b4");
       ctx.fill();
     });
@@ -1295,13 +1226,13 @@
         [-130, 66, 8],
         [-190, 34, 6]
       ].forEach(function (row) {
-        var rowY = base + row[0];
+        var rowY = row[0];
         var half = row[1];
         var steps = row[2];
         for (var i = 0; i <= steps; i++) {
           var t = i / steps;
           ctx.beginPath();
-          ctx.arc(cx - half + 2 * half * t, rowY + Math.sin(t * Math.PI) * 5, 2.4, 0, Math.PI * 2);
+          ctx.arc(-half + 2 * half * t, rowY + Math.sin(t * Math.PI) * 5, 2.4, 0, Math.PI * 2);
           ctx.fillStyle = "#e3c795";
           ctx.fill();
         }
@@ -1311,23 +1242,23 @@
     var starR = tier === 3 ? 26 : (tier === 2 ? 22 : 18);
 
     if (tier === 3) {
-      var glow = ctx.createRadialGradient(cx, base - 300, 4, cx, base - 300, 48);
+      var glow = ctx.createRadialGradient(0, -300, 4, 0, -300, 48);
       glow.addColorStop(0, "rgba(201, 162, 90, .5)");
       glow.addColorStop(1, "rgba(201, 162, 90, 0)");
       ctx.beginPath();
-      ctx.arc(cx, base - 300, 48, 0, Math.PI * 2);
+      ctx.arc(0, -300, 48, 0, Math.PI * 2);
       ctx.fillStyle = glow;
       ctx.fill();
     }
 
-    starPath(ctx, cx, base - 300, starR);
+    starPath(ctx, 0, -300, starR);
     ctx.fillStyle = "#c9a25a";
     ctx.fill();
 
     var boxW = 132;
     var boxH = 84;
-    var bx = cx - 200;
-    var by = base - boxH;
+    var bx = -200;
+    var by = -boxH;
 
     cardPath(ctx, bx - 8, by - 26, boxW + 16, 28, 6);
     ctx.fillStyle = "#f6ebcd";
@@ -1366,35 +1297,6 @@
     ctx.fillText("Юле", bx + boxW + 41, by + 34);
     ctx.textAlign = "left";
 
-    var chairX = x + 30;
-    var chairTop = base - 158;
-
-    ctx.strokeStyle = "#b08a5c";
-    ctx.lineWidth = 2.5;
-    ctx.beginPath();
-    ctx.rect(chairX, chairTop, 64, 128);
-    ctx.stroke();
-
-    for (var c = 1; c <= 4; c++) {
-      var sx = chairX + (64 / 5) * c;
-      ctx.beginPath();
-      ctx.moveTo(sx, chairTop + 6);
-      ctx.lineTo(sx, chairTop + 122);
-      ctx.stroke();
-    }
-
-    ctx.beginPath();
-    ctx.moveTo(chairX - 10, chairTop + 128);
-    ctx.lineTo(chairX + 74, chairTop + 128);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(chairX - 4, chairTop + 128);
-    ctx.lineTo(chairX - 6, base);
-    ctx.moveTo(chairX + 68, chairTop + 128);
-    ctx.lineTo(chairX + 70, base);
-    ctx.stroke();
-
     ctx.restore();
   }
 
@@ -1405,44 +1307,41 @@
       "Подарок через год";
 
     ctx.fillStyle = CARD.wineDeep;
-    ctx.textAlign = "left";
+    ctx.textAlign = "center";
 
-    var size = 66;
+    var size = 58;
     ctx.font = "600 " + size + "px Georgia, 'Times New Roman', serif";
-    while (size > 44 && ctx.measureText(title).width > 904) {
+    while (size > 40 && ctx.measureText(title).width > 900) {
       size -= 2;
       ctx.font = "600 " + size + "px Georgia, 'Times New Roman', serif";
     }
-    ctx.fillText(title, 88, 928);
+    ctx.fillText(title, 540, 1242);
 
     ctx.fillStyle = CARD.soft;
-    ctx.font = "400 28px 'Golos Text', system-ui, sans-serif";
-    ctx.fillText(GUESTS.map(function (g) { return g.name; }).join(" · "), 88, 976);
+    ctx.font = "400 24px 'Golos Text', system-ui, sans-serif";
+    ctx.fillText(GUESTS.map(function (g) { return g.name; }).join(" · "), 540, 1286);
+
+    ctx.textAlign = "left";
   }
 
   function drawCard() {
     if (!el.cardCanvas) return;
     var ctx = el.cardCanvas.getContext("2d");
-    var size = CARD.size;
+    var w = CARD.w;
+    var h = CARD.h;
 
-    ctx.clearRect(0, 0, size, size);
+    ctx.clearRect(0, 0, w, h);
     ctx.fillStyle = CARD.cream;
-    ctx.fillRect(0, 0, size, size);
+    ctx.fillRect(0, 0, w, h);
 
-    cardPath(ctx, 32, 32, size - 64, size - 64, 26);
+    cardPath(ctx, 32, 32, w - 64, h - 64, 26);
     ctx.strokeStyle = CARD.line;
     ctx.lineWidth = 2;
     ctx.stroke();
 
     drawCardHeader(ctx);
+    drawCardTree(ctx, 540, 680, 1.3);
     drawCardStats(ctx);
-
-    ctx.save();
-    ctx.translate(992 - 432 * 0.44, 186);
-    ctx.scale(0.44, 0.44);
-    drawCardScene(ctx, 0, 0, 432, 640);
-    ctx.restore();
-
     drawCardFooter(ctx);
   }
 
