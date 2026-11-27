@@ -236,6 +236,7 @@
     bubble: document.getElementById("bubble"),
     bubbleText: document.getElementById("bubbleText"),
     gifts: document.getElementById("gifts"),
+    giveBtn: document.getElementById("giveBtn"),
     bagCount: document.getElementById("bagCount"),
     bagHint: document.getElementById("bagHint"),
     hint: document.getElementById("hint"),
@@ -496,6 +497,32 @@
       c.classList.remove("is-selected");
       c.setAttribute("aria-pressed", "false");
     });
+    updateGiveButton();
+  }
+
+  var DATIVE = {
+    dima: "Диме",
+    kostya: "Косте",
+    varvara: "Варваре",
+    lena: "Лене",
+    sergey: "Сергею",
+    tanya: "Тане",
+    tatyana: "Татьяне"
+  };
+
+  function updateGiveButton() {
+    if (!el.giveBtn) return;
+
+    if (!state.selected) {
+      el.giveBtn.hidden = true;
+      if (el.bagHint) el.bagHint.hidden = false;
+      return;
+    }
+
+    var guest = GUESTS[state.index];
+    el.giveBtn.hidden = false;
+    if (el.bagHint) el.bagHint.hidden = true;
+    el.giveBtn.textContent = "Отдать " + (DATIVE[guest.id] || guest.name);
   }
 
   function toggleSelect(item, card) {
@@ -509,7 +536,8 @@
     state.selected = item;
     card.classList.add("is-selected");
     card.setAttribute("aria-pressed", "true");
-    el.bagHint.textContent = "Теперь нажми на гостя — или перетащи карточку прямо на него.";
+    updateGiveButton();
+    el.bagHint.textContent = "Теперь нажми «Отдать» — или перетащи карточку на гостя.";
   }
 
   /* ---------- drag ---------- */
@@ -1537,6 +1565,17 @@
   el.startBtn.addEventListener("click", start);
   el.restartBtn.addEventListener("click", reset);
   if (el.shareBtn) el.shareBtn.addEventListener("click", shareCard);
+  if (el.giveBtn) {
+    el.giveBtn.addEventListener("click", function () {
+      if (state.busy || state.solved || !state.selected) return;
+      giveGift(state.selected);
+    });
+  }
+  if (el.bubble) {
+    el.bubble.addEventListener("click", function () {
+      el.bubble.classList.toggle("is-open");
+    });
+  }
 
   el.stage.addEventListener("click", function () {
     if (state.selected) {
