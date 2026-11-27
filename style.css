@@ -24,6 +24,8 @@ body {
   margin: 0;
   min-height: 100vh;
   min-height: 100dvh;
+  max-width: 100%;
+  overflow-x: hidden;
   font-family: var(--font-ui);
   color: var(--ink);
   background:
@@ -204,6 +206,24 @@ body::after {
   grid-template-columns: minmax(0, 1.05fr) minmax(320px, .95fr);
   gap: clamp(18px, 2.6vw, 38px);
   align-items: start;
+  min-width: 0;
+}
+
+.scene,
+.panel,
+.bag,
+.gifts,
+.gift,
+.bubble {
+  min-width: 0;
+}
+
+.bubble p,
+.bag-hint,
+.gift-title,
+.bag-count,
+.nameplate {
+  overflow-wrap: anywhere;
 }
 
 .scene {
@@ -295,12 +315,14 @@ body::after {
 
 .char-video {
   position: absolute;
-  left: 50%;
+  left: 0;
+  right: 0;
   bottom: 0;
-  height: 100%;
   width: auto;
-  aspect-ratio: 1 / 1;
-  transform: translateX(-50%);
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+  margin: 0 auto;
   object-fit: contain;
   object-position: center bottom;
   mix-blend-mode: multiply;
