@@ -1562,12 +1562,26 @@
     reset();
   }
 
+  function scrollToStage() {
+    var small = window.innerWidth <= 560;
+    if (!small) return;
+
+    var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var top = el.stage.getBoundingClientRect().top + window.pageYOffset - 16;
+
+    window.scrollTo({
+      top: Math.max(0, top),
+      behavior: reduce ? "auto" : "smooth"
+    });
+  }
+
   el.startBtn.addEventListener("click", start);
   el.restartBtn.addEventListener("click", reset);
   if (el.shareBtn) el.shareBtn.addEventListener("click", shareCard);
   if (el.giveBtn) {
     el.giveBtn.addEventListener("click", function () {
       if (state.busy || state.solved || !state.selected) return;
+      scrollToStage();
       giveGift(state.selected);
     });
   }
