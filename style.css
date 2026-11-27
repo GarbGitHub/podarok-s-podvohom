@@ -63,7 +63,7 @@ body::after {
   height: 4px;
   border-radius: 50%;
   background: rgba(255, 250, 235, .8);
-  filter: blur(.4px);
+  will-change: transform;
   animation: fall linear infinite;
 }
 
@@ -240,14 +240,15 @@ body::after {
   height: 10px;
   border-radius: 50%;
   margin-top: 12px;
-  background: var(--gold-soft);
-  box-shadow: 0 0 0 0 rgba(227, 199, 149, .8);
+  background: #f4ddab;
+  box-shadow: 0 0 12px 2px rgba(227, 199, 149, .45);
   animation: twinkle 3.2s ease-in-out infinite;
+  will-change: opacity;
 }
 
 @keyframes twinkle {
-  0%, 100% { background: #d9bd8c; box-shadow: 0 0 6px 1px rgba(227, 199, 149, .35); }
-  50% { background: #fff3d2; box-shadow: 0 0 16px 4px rgba(255, 226, 160, .75); }
+  0%, 100% { opacity: .5; }
+  50% { opacity: 1; }
 }
 
 .frame {
@@ -302,6 +303,7 @@ body::after {
   mix-blend-mode: multiply;
   opacity: 0;
   transition: opacity .32s ease;
+  will-change: opacity;
 }
 
 .char-video.is-active { opacity: 1; }

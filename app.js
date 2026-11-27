@@ -333,6 +333,7 @@
     next.onerror = null;
     next.loop = !!options.loop;
     next.muted = !options.sound;
+    next.preload = "auto";
     next.poster = asset("assets/" + guestId + "-neutral.jpg");
     next.src = asset("assets/" + guestId + "-" + stateName + ".mp4");
 
@@ -345,6 +346,10 @@
       if (options.onEnded) options.onEnded();
     };
 
+    prev.pause();
+    prev.preload = "metadata";
+    prev.classList.remove("is-active");
+
     var started = next.play();
     if (started && typeof started.catch === "function") {
       started.catch(function () {
@@ -354,8 +359,6 @@
     }
 
     next.classList.add("is-active");
-    prev.classList.remove("is-active");
-    prev.pause();
     active = 1 - active;
 
     if (!options.loop) {
