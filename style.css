@@ -295,15 +295,17 @@ body::after {
 
 .char-video {
   position: absolute;
-  inset: 0;
-  width: 100%;
+  left: 50%;
+  bottom: 0;
   height: 100%;
+  width: auto;
+  aspect-ratio: 1 / 1;
+  transform: translateX(-50%);
   object-fit: contain;
   object-position: center bottom;
   mix-blend-mode: multiply;
   opacity: 0;
   transition: opacity .32s ease;
-  will-change: opacity;
 }
 
 .char-video.is-active { opacity: 1; }
