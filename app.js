@@ -370,6 +370,12 @@
     }
   }
 
+  function pauseStageClips() {
+    layers.forEach(function (v) {
+      v.pause();
+    });
+  }
+
   /* ---------- ui ---------- */
 
   function setBubble(text) {
@@ -819,6 +825,7 @@
     clearTimeout(watchdog);
     clipToken += 1;
     stopAllSound();
+    pauseStageClips();
     var n = state.mistakes;
 
     el.yuliaKicker.textContent = "00:12 · все подарки разобраны" + (n ? " · неловких пауз: " + n : "");
@@ -830,6 +837,11 @@
     el.callLine.hidden = true;
     clearTimeout(callWatchdog);
     el.yuliaPlayer.pause();
+    el.yuliaPlayer.preload = "auto";
+    if (!el.yuliaPlayer.getAttribute("src")) {
+      el.yuliaPlayer.src = asset("assets/yulia-call.mp4");
+      el.yuliaPlayer.load();
+    }
     el.yuliaOverlay.hidden = false;
     requestAnimationFrame(function () {
       el.yuliaOverlay.classList.add("is-open");
@@ -989,7 +1001,9 @@
     el.yuliaPlayer.onended = function () { finishCall(1600); };
     el.yuliaPlayer.onerror = function () { finishCall(1200); };
 
-    el.yuliaPlayer.src = asset("assets/yulia-call.mp4");
+    if (!el.yuliaPlayer.getAttribute("src")) {
+      el.yuliaPlayer.src = asset("assets/yulia-call.mp4");
+    }
     el.yuliaPlayer.currentTime = 0;
     el.yuliaPlayer.muted = false;
 

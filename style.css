@@ -1079,8 +1079,7 @@ body::after {
   gap: 10px;
   padding: 10px 12px;
   border-radius: 14px;
-  background: rgba(18, 12, 9, .74);
-  backdrop-filter: blur(6px);
+  background: rgba(18, 12, 9, .88);
   box-shadow: 0 6px 18px rgba(0, 0, 0, .3);
 }
 
@@ -1119,6 +1118,7 @@ body::after {
 
 @media (max-width: 560px) {
   .app { padding: 12px 12px; border-radius: 20px; }
+  .overlay { backdrop-filter: none; background: rgba(12, 9, 7, .78); }
   .topbar { gap: 8px; }
   .brand { gap: 8px; }
   .brand-star { width: 24px; height: 24px; }
